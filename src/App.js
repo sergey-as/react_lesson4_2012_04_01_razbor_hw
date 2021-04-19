@@ -12,14 +12,14 @@ const AVAILABLE_RESOURCES = [
     'users',
 ]
 
-48:27 react-hw
+// 48:27 react-hw
 
 function App() {
     // const [endpoint, setEndpoint] = useState('');
     // const [id, setId] = useState('');
 
     const [endpointFields, setEndpointFields] = useState({
-    // const [{endpoint, id}, setEndpointFields] = useState({
+        // const [{endpoint, id}, setEndpointFields] = useState({
         endpoint: '',
         id: ''
     });
@@ -31,33 +31,46 @@ function App() {
     const [items, setItems] = useState([]);
     const [singleItem, setSingleItem] = useState(null);
 
-    const onSubmit = () => {
+    const validateEndpoint = () => {
         // первір чи перший інпут не є пустим
         // перевір чи в пешому інпуті валідне значення
         if (!endpoint) {
-            return setErrorMessage('first input is required!!!')
+            setErrorMessage('first input is required!!!')
+            return false;
+        } else if (!AVAILABLE_RESOURCES.includes(endpoint.trim().toLowerCase())) {
+            setErrorMessage('value is not valid, try to use smth from this list: posts, comments, albums, photos, todos, users')
+            return false;
         }
+        return true;
+    }
 
-        if (!AVAILABLE_RESOURCES.includes(endpoint.trim().toLowerCase())) {
-            return setErrorMessage('value is not valid, try to use smth from this list: posts, comments, albums, photos, todos, users')
-        }
-
+    const validateId = () => {
         // перевір чи значення є числовим
         // перевір чи значення в діапазоні 1-100
 
         const idToNum = Number(id);
 
         if (!idToNum && id.trim() !== '' && idToNum !== 0) {
-            return setErrorMessage('value for second input is not valid, pls use numeric value')
+            setErrorMessage('value for second input is not valid, pls use numeric value')
+            return false;
+        } else if ((idToNum < 1 || idToNum > 100) && id.trim() !== '') {
+            setErrorMessage('value for second input is out of range, pls use 1-100')
+            return false;
         }
-        if ((idToNum < 1 || idToNum > 100) && id.trim() !== '') {
-            return setErrorMessage('value for second input is out of range, pls use 1-100')
-        }
-
-        setErrorMessage('');
-        fetchData();
+        return true;
     }
 
+    const resetError = () => setErrorMessage('');
+
+    const onSubmit = () => {
+        const isEndpointValid = validateEndpoint();
+        const isIdValid = validateId();
+
+        if (isIdValid && isEndpointValid) {
+            resetError();
+            fetchData();
+        }
+    }
 
     const fetchData = async () => {
         const responce = await fetch(`${BASE_URL}/${endpoint.trim().toLowerCase()}/${id.trim()}`);
